@@ -8,7 +8,6 @@ const $episodesList = $("#episodesList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 
-
 /** Given a search term, search for tv shows that match that query.
  *
  *  Returns (promise) array of show objects: [show, show, ...].
@@ -22,7 +21,7 @@ async function getShowsByTerm(term) {
     method: "GET",
   });
 
-  return response.data.map(result => {
+  return response.data.map((result) => {
     const show = result.show;
     return {
       id: show.id,
@@ -33,7 +32,6 @@ async function getShowsByTerm(term) {
   });
 }
 
-
 /** Given list of shows, create markup for each and to DOM */
 
 function populateShows(shows) {
@@ -41,7 +39,7 @@ function populateShows(shows) {
 
   for (let show of shows) {
     const $show = $(
-        `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
+      `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img src="${show.image}" alt="${show.name}" class="w-25 mr-3">
            <div class="media-body">
@@ -53,12 +51,12 @@ function populateShows(shows) {
            </div>
          </div>  
        </div>
-      `);
+      `
+    );
 
     $showsList.append($show);
   }
 }
-
 
 /** Handle search form submission: get shows from API and display.
  *    Hide episodes area (that only gets shown if they ask for episodes)
@@ -77,7 +75,6 @@ $searchForm.on("submit", async function (evt) {
   await searchForShowAndDisplay();
 });
 
-
 /** Given a show ID, get from API and return (promise) array of episodes:
  *      { id, name, season, number }
  */
@@ -85,17 +82,17 @@ $searchForm.on("submit", async function (evt) {
 async function getEpisodesOfShow(id) {
   const response = await axios({
     url: `${TVMAZE_API_URL}shows/${id}/episodes`,
+    console.log(`${TVMAZE_API_URL}shows/${id}/episodes`);
     method: "GET",
   });
 
-  return response.data.map(e => ({
+  return response.data.map((e) => ({
     id: e.id,
     name: e.name,
     season: e.season,
     number: e.number,
   }));
 }
-
 
 /** Given list of episodes, create markup for each and to DOM */
 
@@ -104,18 +101,18 @@ function populateEpisodes(episodes) {
 
   for (let episode of episodes) {
     const $item = $(
-        `<li>
+      `<li>
          ${episode.name}
          (season ${episode.season}, episode ${episode.number})
        </li>
-      `);
+      `
+    );
 
     $episodesList.append($item);
   }
 
   $episodesArea.show();
 }
-
 
 /** Handle click on episodes button: get episodes for show and display */
 

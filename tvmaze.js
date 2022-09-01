@@ -2,6 +2,7 @@
 
 const $showsList = $("#shows-list");
 const $episodesArea = $("#episodes-area");
+const $episodesList = $("#episodesList");
 const $searchForm = $("#search-form");
 // alternative image if there is none to display
 const altImage = "https://tinyurl.com/missing-tv";
@@ -16,7 +17,7 @@ const altImage = "https://tinyurl.com/missing-tv";
 async function getShowsByTerm(term) {
   // Get data from API
   const response = await axios.get(
-    "http://api.tvmaze.com/search/shows?q=" + `${term}`
+    `http://api.tvmaze.com/search/shows?q=${term}`
   );
   // Wanted data from API is placed into object
   return response.data.map((result) => {
@@ -61,7 +62,7 @@ function populateShows(shows) {
          <div class="media-body">
            <h5 class="text-primary">${show.name}</h5>
            <div><small>${show.summary}</small></div>
-           <button type="button" data-show-id="${show.id}">
+           <button type="button" id="${show.id}">
              Episodes
            </button>
          </div>
@@ -94,21 +95,45 @@ $searchForm.on("submit", async function (evt) {
 /** Given a show ID, get from API and return (promise) array of episodes:
  *      { id, name, season, number }
  */
+function populateEpisodes(episodes) {
+  $episodesList.empty();
 
-async function getEpisodesOfShow(id) {
+  for (let episode of episodes) {
+    const $item = $(
+      `<li>
+         ${episode.name}
+         (season ${episode.season}, episode ${episode.number})
+       </li>
+      `
+    );
+
+    $("#episodes-list").append($item);
+  }
+
+  $episodesArea.show();
+}
+
+// gets the episode data from the API
+async function getEpisodesOfShow(showId) {
   const response = await axios.get(
-    "http://api.tvmaze.com/shows/" + `${id}` + "/episodes"
+    `http://api.tvmaze.com/shows/${showId}/episodes`
   );
+  return response;
 }
 
 /** Write a clear docstring for this function... */
 
-async function getEpisodesAndDisplay(evt) {
-  const showId = $(evt.target).data("show-id");
-  const episodes = await getEpisodesOfShow(showId);
+async function getEpisodesAndDisplay(showId) {
+  const getEpisodes = await getEpisodesOfShow(showId);
+  const episodes = getEpisodes.data;
   populateEpisodes(episodes);
 }
 
-$showsList.on("click", async function () {
-  await getEpisodesAndDisplay();
+// click event for Episodes button
+$showsList.on("click", async function (event) {
+  // clears previous list of episodes
+  $("#episodes-list li").remove();
+
+  const showId = event.target.id;
+  await getEpisodesAndDisplay(showId);
 });
